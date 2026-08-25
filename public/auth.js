@@ -1,5 +1,5 @@
 /**
- * Shared auth helpers for LogisPass static pages.
+ * Shared auth helpers for WalletPass for Logistics static pages.
  */
 
 /**

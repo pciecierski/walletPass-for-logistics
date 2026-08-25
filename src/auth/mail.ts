@@ -17,7 +17,7 @@ function fromAddress(): string {
   return (
     process.env.SENDGRID_FROM_EMAIL?.trim() ||
     process.env.MAIL_FROM?.trim() ||
-    "noreply@logispass.pl"
+    "noreply@walletpass-for-logistics.pl"
   );
 }
 
@@ -67,7 +67,7 @@ async function sendTransactionalEmail(input: {
 
   if (!apiKey) {
     console.warn(
-      `[logispass] SENDGRID_API_KEY missing — ${input.logLabel} link (dev):\n`,
+      `[walletpass-for-logistics] SENDGRID_API_KEY missing — ${input.logLabel} link (dev):\n`,
       input.previewUrl,
     );
     return { sent: false, previewUrl: input.previewUrl };
@@ -75,7 +75,7 @@ async function sendTransactionalEmail(input: {
 
   if (!apiKey.startsWith("SG.")) {
     console.error(
-      "[logispass] SENDGRID_API_KEY does not start with SG. — check Railway variable (no quotes/spaces)",
+      "[walletpass-for-logistics] SENDGRID_API_KEY does not start with SG. — check Railway variable (no quotes/spaces)",
     );
     return {
       sent: false,
@@ -97,7 +97,7 @@ async function sendTransactionalEmail(input: {
     return { sent: true };
   } catch (e) {
     const error = describeSendGridError(e);
-    console.error("[logispass] SendGrid send failed:", error, e);
+    console.error("[walletpass-for-logistics] SendGrid send failed:", error, e);
     return {
       sent: false,
       previewUrl: input.previewUrl,
@@ -109,11 +109,11 @@ async function sendTransactionalEmail(input: {
 export async function sendPasswordSetupEmail(
   input: PasswordSetupMailInput,
 ): Promise<MailResult> {
-  const subject = "LogisPass — potwierdź konto i ustaw hasło";
+  const subject = "WalletPass for Logistics — potwierdź konto i ustaw hasło";
   const text = [
     `Cześć ${input.firstName},`,
     "",
-    `Konto LogisPass dla lokalizacji „${input.locationName}” zostało utworzone.`,
+    `Konto WalletPass for Logistics dla lokalizacji „${input.locationName}” zostało utworzone.`,
     "Potwierdź adres e-mail i ustaw hasło, klikając jednorazowy link:",
     input.setupUrl,
     "",
@@ -121,17 +121,17 @@ export async function sendPasswordSetupEmail(
     "",
     "Jeśli nie zakładałeś konta, zignoruj tę wiadomość.",
     "",
-    "— LogisPass",
+    "— WalletPass for Logistics",
   ].join("\n");
 
   const html = `
     <p>Cześć ${escapeHtml(input.firstName)},</p>
-    <p>Konto LogisPass dla lokalizacji <strong>${escapeHtml(input.locationName)}</strong> zostało utworzone.</p>
+    <p>Konto WalletPass for Logistics dla lokalizacji <strong>${escapeHtml(input.locationName)}</strong> zostało utworzone.</p>
     <p>Potwierdź adres e-mail i ustaw hasło, klikając jednorazowy link:</p>
     <p><a href="${escapeHtml(input.setupUrl)}">${escapeHtml(input.setupUrl)}</a></p>
     <p>Link jest ważny 48 godzin i działa tylko raz.</p>
     <p>Jeśli nie zakładałeś konta, zignoruj tę wiadomość.</p>
-    <p>— LogisPass</p>
+    <p>— WalletPass for Logistics</p>
   `;
 
   return sendTransactionalEmail({
@@ -154,11 +154,11 @@ export type PasswordResetMailInput = {
 export async function sendPasswordResetEmail(
   input: PasswordResetMailInput,
 ): Promise<MailResult> {
-  const subject = "LogisPass — reset hasła";
+  const subject = "WalletPass for Logistics — reset hasła";
   const text = [
     `Cześć ${input.firstName},`,
     "",
-    `Otrzymaliśmy prośbę o reset hasła do konta LogisPass (lokalizacja „${input.locationName}”).`,
+    `Otrzymaliśmy prośbę o reset hasła do konta WalletPass for Logistics (lokalizacja „${input.locationName}”).`,
     "Ustaw nowe hasło, klikając jednorazowy link:",
     input.resetUrl,
     "",
@@ -166,17 +166,17 @@ export async function sendPasswordResetEmail(
     "",
     "Jeśli nie prosiłeś o reset, zignoruj tę wiadomość — hasło pozostanie bez zmian.",
     "",
-    "— LogisPass",
+    "— WalletPass for Logistics",
   ].join("\n");
 
   const html = `
     <p>Cześć ${escapeHtml(input.firstName)},</p>
-    <p>Otrzymaliśmy prośbę o reset hasła do konta LogisPass (lokalizacja <strong>${escapeHtml(input.locationName)}</strong>).</p>
+    <p>Otrzymaliśmy prośbę o reset hasła do konta WalletPass for Logistics (lokalizacja <strong>${escapeHtml(input.locationName)}</strong>).</p>
     <p>Ustaw nowe hasło, klikając jednorazowy link:</p>
     <p><a href="${escapeHtml(input.resetUrl)}">${escapeHtml(input.resetUrl)}</a></p>
     <p>Link jest ważny 48 godzin i działa tylko raz.</p>
     <p>Jeśli nie prosiłeś o reset, zignoruj tę wiadomość — hasło pozostanie bez zmian.</p>
-    <p>— LogisPass</p>
+    <p>— WalletPass for Logistics</p>
   `;
 
   return sendTransactionalEmail({

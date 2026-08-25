@@ -1,10 +1,10 @@
-const STORAGE_KEY = "logispass.lang";
+const STORAGE_KEY = "walletpass-for-logistics.lang";
 
 /** @typedef {"pl" | "en"} Locale */
 
 const messages = {
   en: {
-    "meta.title": "LogisPass — Wallet Pass Studio",
+    "meta.title": "WalletPass for Logistics — Wallet Pass Studio",
     "nav.create": "Create",
     "nav.passes": "Passes",
     "nav.setup": "Setup",
@@ -12,7 +12,7 @@ const messages = {
     "nav.login": "Log in",
     "nav.logout": "Log out",
     "lang.label": "Language",
-    "hero.brand": "LogisPass try it…",
+    "hero.brand": "WalletPass for Logistics try it…",
     "hero.title": "Access passes for logistics parks and secure sites.",
     "hero.lede":
       "Create test passes for a logistics park or other restricted-access sites — we’ll send them to the intended recipient.",
@@ -88,7 +88,7 @@ const messages = {
     "setup.storageHintEphemeral":
       "Pass data is on ephemeral disk and will be lost on redeploy. Attach a Railway volume mounted at /data (or set DATA_DIR to the volume mount path).",
     "footer.tagline": "Google Wallet · Apple Wallet coming soon",
-    "pass.meta.title": "Your pass · LogisPass",
+    "pass.meta.title": "Your pass · WalletPass for Logistics",
     "pass.loading": "Loading pass…",
     "pass.notFound": "Pass not found",
     "pass.loadError": "Could not load pass",
@@ -107,7 +107,7 @@ const messages = {
     "pass.ready": "ready",
     "pass.preview": "preview",
     "common.requestFailed": "Request failed",
-    "auth.register.meta": "Register · LogisPass",
+    "auth.register.meta": "Register · WalletPass for Logistics",
     "auth.register.title": "Create an account",
     "auth.register.lede":
       "After registration we will email a confirmation and a one-time link to set your password.",
@@ -119,13 +119,13 @@ const messages = {
     "auth.register.emailFailed":
       "Email was not sent. Check SENDGRID_API_KEY and SENDGRID_FROM_EMAIL on Railway.",
     "auth.register.preview": "Temporary password setup link:",
-    "auth.login.meta": "Log in · LogisPass",
+    "auth.login.meta": "Log in · WalletPass for Logistics",
     "auth.login.title": "Log in",
-    "auth.login.lede": "Sign in to the LogisPass studio.",
+    "auth.login.lede": "Sign in to the WalletPass for Logistics studio.",
     "auth.login.submit": "Log in",
     "auth.login.busy": "Signing in…",
     "auth.login.failed": "Could not sign in",
-    "auth.forgot.meta": "Reset password · LogisPass",
+    "auth.forgot.meta": "Reset password · WalletPass for Logistics",
     "auth.forgot.title": "Reset password",
     "auth.forgot.lede":
       "Enter your account email — we will send a one-time link to set a new password (SendGrid).",
@@ -133,7 +133,7 @@ const messages = {
     "auth.forgot.busy": "Sending…",
     "auth.forgot.failed": "Could not send the link",
     "auth.forgot.preview": "Email did not go out. Temporary link:",
-    "auth.setPassword.meta": "Set password · LogisPass",
+    "auth.setPassword.meta": "Set password · WalletPass for Logistics",
     "auth.setPassword.title": "Set password",
     "auth.setPassword.titleReset": "New password",
     "auth.setPassword.checking": "Checking link…",
@@ -168,7 +168,7 @@ const messages = {
     "auth.setPassword": "set password",
   },
   pl: {
-    "meta.title": "LogisPass — Studio przepustek Wallet",
+    "meta.title": "WalletPass for Logistics — Studio przepustek Wallet",
     "nav.create": "Utwórz",
     "nav.passes": "Przepustki",
     "nav.setup": "Konfiguracja",
@@ -176,7 +176,7 @@ const messages = {
     "nav.login": "Zaloguj",
     "nav.logout": "Wyloguj",
     "lang.label": "Język",
-    "hero.brand": "LogisPass wypróbuj…",
+    "hero.brand": "WalletPass for Logistics wypróbuj…",
     "hero.title": "Przepustki na park logistyczny i tereny chronione.",
     "hero.lede":
       "Utwórz testowe przepustki na park logistyczny lub inne obiekty z ograniczonym dostępem, wyślemy je do docelowego odbiorcy.",
@@ -252,7 +252,7 @@ const messages = {
     "setup.storageHintEphemeral":
       "Dane są na efemerycznym dysku i znikną po redeploy. Podłącz volume Railway pod /data (albo ustaw DATA_DIR na ścieżkę mountu).",
     "footer.tagline": "Google Wallet · Apple Wallet wkrótce",
-    "pass.meta.title": "Twoja przepustka · LogisPass",
+    "pass.meta.title": "Twoja przepustka · WalletPass for Logistics",
     "pass.loading": "Ładowanie przepustki…",
     "pass.notFound": "Nie znaleziono przepustki",
     "pass.loadError": "Nie udało się wczytać przepustki",
@@ -271,7 +271,7 @@ const messages = {
     "pass.ready": "gotowy",
     "pass.preview": "podgląd",
     "common.requestFailed": "Żądanie nie powiodło się",
-    "auth.register.meta": "Zarejestruj · LogisPass",
+    "auth.register.meta": "Zarejestruj · WalletPass for Logistics",
     "auth.register.title": "Zarejestruj konto",
     "auth.register.lede":
       "Po rejestracji wyślemy e-mail z potwierdzeniem i jednorazowym linkiem do utworzenia hasła.",
@@ -283,13 +283,13 @@ const messages = {
     "auth.register.emailFailed":
       "E-mail nie został wysłany. Sprawdź SENDGRID_API_KEY i SENDGRID_FROM_EMAIL na Railway.",
     "auth.register.preview": "Tymczasowy link do ustawienia hasła:",
-    "auth.login.meta": "Zaloguj · LogisPass",
+    "auth.login.meta": "Zaloguj · WalletPass for Logistics",
     "auth.login.title": "Zaloguj",
-    "auth.login.lede": "Zaloguj się do studio LogisPass.",
+    "auth.login.lede": "Zaloguj się do studio WalletPass for Logistics.",
     "auth.login.submit": "Zaloguj",
     "auth.login.busy": "Logowanie…",
     "auth.login.failed": "Nie udało się zalogować",
-    "auth.forgot.meta": "Reset hasła · LogisPass",
+    "auth.forgot.meta": "Reset hasła · WalletPass for Logistics",
     "auth.forgot.title": "Reset hasła",
     "auth.forgot.lede":
       "Podaj e-mail konta — wyślemy jednorazowy link do ustawienia nowego hasła (SendGrid).",
@@ -297,7 +297,7 @@ const messages = {
     "auth.forgot.busy": "Wysyłanie…",
     "auth.forgot.failed": "Nie udało się wysłać linku",
     "auth.forgot.preview": "E-mail nie wyszedł. Link tymczasowy:",
-    "auth.setPassword.meta": "Ustaw hasło · LogisPass",
+    "auth.setPassword.meta": "Ustaw hasło · WalletPass for Logistics",
     "auth.setPassword.title": "Ustaw hasło",
     "auth.setPassword.titleReset": "Nowe hasło",
     "auth.setPassword.checking": "Sprawdzanie linku…",

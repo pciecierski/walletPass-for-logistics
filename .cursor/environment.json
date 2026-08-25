@@ -1,11 +1,11 @@
 {
-  "name": "LogisPass",
+  "name": "WalletPass for Logistics",
   "install": "npm ci",
   "terminals": [
     {
       "name": "dev-server",
       "command": "npm run dev",
-      "description": "LogisPass dev server (tsx watch) serving the wallet pass studio and API on http://localhost:3000"
+      "description": "WalletPass for Logistics dev server (tsx watch) serving the wallet pass studio and API on http://localhost:3000"
     }
   ],
   "ports": [

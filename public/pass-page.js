@@ -72,7 +72,7 @@ function renderPass(data) {
   const preference = preferredWallet(device, wallets);
 
   title.removeAttribute("data-i18n");
-  document.title = `${input.organizationName} · LogisPass`;
+  document.title = `${input.organizationName} · WalletPass for Logistics`;
   title.textContent = input.eventName || input.discount || input.description;
   desc.textContent = `${input.organizationName} · ${input.style}`;
 

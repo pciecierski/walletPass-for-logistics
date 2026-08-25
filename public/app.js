@@ -328,8 +328,8 @@ GOOGLE_SERVICE_ACCOUNT_KEY={"type":"service_account",...}
 # TWILIO_FROM_NUMBER=+1...
 # SMS_PROVIDER=smsapi
 # SMSAPI_TOKEN=
-# SMSAPI_FROM=LogisPass
-# SMS_MESSAGE_TEMPLATE=LogisPass: Your pass from {{org}} — open {{url}}
+# SMSAPI_FROM=WalletPass for Logistics
+# SMS_MESSAGE_TEMPLATE=WalletPass for Logistics: Your pass from {{org}} — open {{url}}
 # For local testing without a gateway: SMS_PROVIDER=log`;
 }
 

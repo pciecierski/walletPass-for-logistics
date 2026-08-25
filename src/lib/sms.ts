@@ -35,7 +35,7 @@ export function buildPassSmsBody(
 ): string {
   const template =
     config.sms.messageTemplate ||
-    "LogisPass: Your pass from {{org}} — open {{url}}";
+    "WalletPass for Logistics: Your pass from {{org}} — open {{url}}";
   return template
     .replaceAll("{{org}}", opts.organizationName)
     .replaceAll("{{url}}", opts.pageUrl)

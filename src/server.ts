@@ -79,7 +79,7 @@ app.get("/{*splat}", (req, res, next) => {
 
 app.listen(config.port, () => {
   const purged = store.purgeExpired();
-  console.log(`LogisPass server listening on :${config.port}`);
+  console.log(`WalletPass for Logistics server listening on :${config.port}`);
   console.log(`Public base URL: ${config.publicBaseUrl}`);
   console.log(
     `Storage: ${config.dataDir} (${config.storage.persistent ? "persistent volume" : "ephemeral — attach Railway volume at /data"})`,
