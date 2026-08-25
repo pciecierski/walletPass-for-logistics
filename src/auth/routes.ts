@@ -216,7 +216,7 @@ export function createAuthRouter(store: AuthStore, publicBaseUrl: string): Route
         ...(!mail.sent && mail.previewUrl ? { previewSetupUrl: mail.previewUrl } : {}),
       });
     } catch (e) {
-      console.error("[logispass] register failed", e);
+      console.error("[walletpass-for-logistics] register failed", e);
       const raw = e instanceof Error ? e.message : "Nie udało się utworzyć konta";
       const error = /unauthorized/i.test(raw)
         ? "Błąd wysyłki e-mail (SendGrid Unauthorized). Sprawdź SENDGRID_API_KEY i SENDGRID_FROM_EMAIL na Railway."
@@ -368,7 +368,7 @@ export function createAuthRouter(store: AuthStore, publicBaseUrl: string): Route
         ...(!mail.sent && mail.previewUrl ? { previewSetupUrl: mail.previewUrl } : {}),
       });
     } catch (e) {
-      console.error("[logispass] forgot-password failed", e);
+      console.error("[walletpass-for-logistics] forgot-password failed", e);
       res.status(500).json({
         error: e instanceof Error ? e.message : "Nie udało się wysłać linku resetu",
       });

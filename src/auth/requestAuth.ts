@@ -3,7 +3,7 @@ import type { AuthStore } from "./store.js";
 import { hashToken } from "./authCrypto.js";
 import type { Account } from "./types.js";
 
-export const SESSION_COOKIE = "logispass_session";
+export const SESSION_COOKIE = "walletpass_for_logistics_session";
 
 export function parseCookies(header: string | undefined): Record<string, string> {
   if (!header) return {};

@@ -149,7 +149,7 @@ function buildPassJson(
     serialNumber: stored.serialNumber,
     teamIdentifier: config.apple.teamIdentifier || "TEAMIDXXXX",
     organizationName:
-      config.apple.organizationName || input.organizationName || "LogisPass",
+      config.apple.organizationName || input.organizationName || "WalletPass for Logistics",
     description: input.description,
     logoText: input.logoText || input.organizationName,
     foregroundColor: cssColorToRgb(fg),

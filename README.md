@@ -1,4 +1,4 @@
-# LogisPass
+# WalletPass for Logistics
 
 Issue **Google Wallet** passes for logistics parks and high-security restricted areas. Apple Wallet support is built in the codebase but **temporarily unavailable** and will be activated soon.
 
@@ -53,7 +53,7 @@ GOOGLE_ISSUER_ID=3388xxxxxxxx
 GOOGLE_SERVICE_ACCOUNT_KEY='{"type":"service_account",...}'
 ```
 
-Pass graphics: if the class already exists in Google Pay & Wallet Console, LogisPass **reuses its images** and does not overwrite the class. For Generic passes, `heroImage` / `logo` are copied onto each object (required by the API). Optional overrides:
+Pass graphics: if the class already exists in Google Pay & Wallet Console, WalletPass for Logistics **reuses its images** and does not overwrite the class. For Generic passes, `heroImage` / `logo` are copied onto each object (required by the API). Optional overrides:
 
 ```bash
 GOOGLE_HERO_IMAGE_URL=https://your-domain/wallet-assets/logistics-park-gate-hero.png
@@ -78,13 +78,13 @@ TWILIO_FROM_NUMBER=+15551234567
 ```bash
 SMS_PROVIDER=smsapi
 SMSAPI_TOKEN=xxxxxxxx
-SMSAPI_FROM=LogisPass
+SMSAPI_FROM=WalletPass for Logistics
 ```
 
 Optional template (placeholders `{{org}}` and `{{url}}`):
 
 ```bash
-SMS_MESSAGE_TEMPLATE=LogisPass: Your pass from {{org}} — open {{url}}
+SMS_MESSAGE_TEMPLATE=WalletPass for Logistics: Your pass from {{org}} — open {{url}}
 ```
 
 For local testing without a real gateway: `SMS_PROVIDER=log` (message is printed to the server log).
@@ -118,14 +118,14 @@ railway domain
 railway variable set PUBLIC_BASE_URL=https://your-domain.up.railway.app
 ```
 
-`PUBLIC_BASE_URL` must include the scheme (`https://…`). A host-only value like `logispass.pl` breaks Google Wallet image URLs and Save-to-Wallet links.
+`PUBLIC_BASE_URL` must include the scheme (`https://…`). A host-only value like `walletpass-for-logistics.pl` breaks Google Wallet image URLs and Save-to-Wallet links.
 
 ### Persist passes across deploys (volume, no database)
 
 Passes are stored as files under `DATA_DIR` (default `/data` in production). Container disk is wiped on every deploy unless you attach a **Railway Volume**:
 
 ```bash
-# Attach a persistent volume to the LogisPass service at /data
+# Attach a persistent volume to the WalletPass for Logistics service at /data
 railway volume add --service <your-service-name> --mount-path /data
 ```
 

@@ -1,5 +1,5 @@
 {
-  "name": "logispass",
+  "name": "walletpass-for-logistics",
   "version": "1.0.0",
   "description": "Issue Apple Wallet and Google Wallet passes for logistics parks and restricted areas",
   "type": "module",

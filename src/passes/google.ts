@@ -107,7 +107,7 @@ function absoluteHttpsUri(raw: string | undefined): string | undefined {
 /**
  * Resolve branding images for a pass object.
  * Priority: explicit env URLs → images already configured on the Wallet class →
- * public LogisPass hero asset (Generic only).
+ * public WalletPass for Logistics hero asset (Generic only).
  */
 function resolvePassImages(
   config: AppConfig,
@@ -170,7 +170,7 @@ function buildGenericClass(config: AppConfig, style: CreatePassInput["style"]) {
   const images = resolvePassImages(config, style, null);
   const base: Record<string, unknown> = {
     id,
-    issuerName: "LogisPass",
+    issuerName: "WalletPass for Logistics",
     reviewStatus: "UNDER_REVIEW",
   };
 
@@ -195,7 +195,7 @@ function buildGenericClass(config: AppConfig, style: CreatePassInput["style"]) {
         ...base,
         reviewStatus: "UNDER_REVIEW",
         redemptionChannel: "BOTH",
-        provider: "LogisPass",
+        provider: "WalletPass for Logistics",
       };
     case "eventTicket":
       return {

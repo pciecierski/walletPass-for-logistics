@@ -149,7 +149,7 @@ function loadSnapshot(filePath: string): AuthSnapshot {
       sessions: Array.isArray(raw.sessions) ? raw.sessions : [],
     };
   } catch (e) {
-    console.error("[logispass] Failed to read auth store — starting empty", e);
+    console.error("[walletpass-for-logistics] Failed to read auth store — starting empty", e);
     return emptySnapshot();
   }
 }
