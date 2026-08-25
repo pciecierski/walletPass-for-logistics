@@ -76,8 +76,8 @@ function renderPass(data) {
   title.textContent = input.eventName || input.discount || input.description;
   desc.textContent = `${input.organizationName} · ${input.style}`;
 
-  const bg = input.backgroundColor || "#0B3D2E";
-  const fg = input.foregroundColor || "#F4EFE6";
+  const bg = input.backgroundColor || "#1A3A6B";
+  const fg = input.foregroundColor || "#EEF3FA";
   preview.style.background = `linear-gradient(145deg, ${bg}, color-mix(in srgb, ${bg} 70%, black))`;
   preview.style.color = fg;
   preview.innerHTML = `

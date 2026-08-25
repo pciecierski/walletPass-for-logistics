@@ -134,9 +134,9 @@ form.addEventListener("submit", async (event) => {
     barcodeMessage: String(fd.get("barcodeMessage") || "").trim() || undefined,
     recipientPhone: String(fd.get("recipientPhone") || "").trim() || undefined,
     sendSms: fd.get("sendSms") === "1",
-    backgroundColor: String(fd.get("backgroundColor") || "#0B3D2E"),
-    foregroundColor: String(fd.get("foregroundColor") || "#F4EFE6"),
-    labelColor: "#C8B8A0",
+    backgroundColor: String(fd.get("backgroundColor") || "#1A3A6B"),
+    foregroundColor: String(fd.get("foregroundColor") || "#EEF3FA"),
+    labelColor: "#9BB4D4",
   };
 
   if (style === "coupon") {
