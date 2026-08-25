@@ -639,10 +639,30 @@ input[type="color"] {
 
 .site-footer {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem 1.5rem;
   padding: 2rem clamp(1.25rem, 4vw, 3rem) 3rem;
   font-size: 0.85rem;
   color: color-mix(in srgb, var(--ink) 60%, transparent);
+}
+
+.footer-credit {
+  flex-basis: 100%;
+  margin: 0.35rem 0 0;
+  font-size: 0.82rem;
+}
+
+.footer-credit a {
+  color: var(--moss);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.footer-credit a:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
 }
 
 .pass-page .pass-main {
