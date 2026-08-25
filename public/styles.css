@@ -1,10 +1,10 @@
 :root {
-  --ink: #14201b;
-  --paper: #e8efe8;
-  --moss: #0b3d2e;
-  --moss-deep: #06261c;
-  --brass: #c4a35a;
-  --mist: #d5e2d8;
+  --ink: #0f1a2e;
+  --paper: #e8eef6;
+  --moss: #1a3a6b;
+  --moss-deep: #0f2749;
+  --brass: #4a7ab5;
+  --mist: #d4dde9;
   --danger: #8b2e2e;
   --radius: 2px;
   --font-display: "Fraunces", Georgia, serif;
@@ -25,9 +25,9 @@ body {
   color: var(--ink);
   font-family: var(--font-body);
   background:
-    radial-gradient(1200px 700px at 80% -10%, rgba(196, 163, 90, 0.18), transparent 55%),
-    radial-gradient(900px 600px at -10% 20%, rgba(11, 61, 46, 0.2), transparent 50%),
-    linear-gradient(165deg, #f3f7f3 0%, #dfeae2 42%, #c9d8ce 100%);
+    radial-gradient(1200px 700px at 80% -10%, rgba(74, 122, 181, 0.22), transparent 55%),
+    radial-gradient(900px 600px at -10% 20%, rgba(15, 39, 73, 0.2), transparent 50%),
+    linear-gradient(165deg, #f0f4fa 0%, #dce5f0 42%, #c5d2e4 100%);
   line-height: 1.5;
 }
 
@@ -241,12 +241,12 @@ main,
 
 .lang-btn.is-active {
   background: var(--moss);
-  color: #f4efe6;
+  color: #eef3fa;
 }
 
 .lang-btn.is-active:hover {
   background: var(--moss-deep);
-  color: #f4efe6;
+  color: #eef3fa;
 }
 
 .hero {
@@ -385,10 +385,10 @@ a.btn.disabled {
   width: 220px;
   padding: 1.25rem;
   border-radius: 18px;
-  color: #f4efe6;
+  color: #eef3fa;
   background:
-    linear-gradient(145deg, #0b3d2e, #164a38 55%, #0a2f24);
-  box-shadow: 0 24px 50px rgba(6, 38, 28, 0.28);
+    linear-gradient(145deg, #1a3a6b, #2a5080 55%, #0f2749);
+  box-shadow: 0 24px 50px rgba(15, 39, 73, 0.3);
   animation: float 5.5s ease-in-out infinite;
 }
 
@@ -425,7 +425,7 @@ a.btn.disabled {
 .tilt-b {
   right: 0;
   top: 70px;
-  background: linear-gradient(145deg, #1d3a4a, #2a5366);
+  background: linear-gradient(145deg, #243f6e, #3a5f94);
   animation-delay: -2.2s;
   transform: rotate(7deg);
 }
@@ -632,7 +632,7 @@ input[type="color"] {
   padding: 1rem 1.1rem;
   overflow: auto;
   background: color-mix(in srgb, var(--moss-deep) 92%, black);
-  color: #d9e7dd;
+  color: #d4deec;
   font-size: 0.8rem;
   border-radius: var(--radius);
 }
@@ -657,8 +657,8 @@ input[type="color"] {
   margin: 1.5rem 0;
   padding: 1.5rem;
   border-radius: 18px;
-  color: #f4efe6;
-  background: linear-gradient(145deg, #0b3d2e, #164a38);
+  color: #eef3fa;
+  background: linear-gradient(145deg, #1a3a6b, #2a5080);
   min-height: 160px;
   animation: rise 0.8s ease both;
 }
