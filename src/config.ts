@@ -22,6 +22,69 @@ export function normalizePublicBaseUrl(raw: string | undefined, port: number): s
   return value.replace(/\/$/, "");
 }
 
+/** True when the URL points at a local loopback host (common .env.example leftover on Railway). */
+export function isLocalPublicBaseUrl(url: string): boolean {
+  try {
+    const host = new URL(url).hostname.toLowerCase();
+    return host === "localhost" || host === "127.0.0.1" || host === "::1" || host === "0.0.0.0";
+  } catch {
+    return true;
+  }
+}
+
+/**
+ * Resolve the public site URL used in pass links, SMS, and Google Wallet JWT origins.
+ * Prefer an explicit non-local PUBLIC_BASE_URL; otherwise use Railway's public domain.
+ */
+export function resolvePublicBaseUrl(
+  env: NodeJS.ProcessEnv = process.env,
+  port = Number(env.PORT || 3000),
+): string {
+  const explicit = env.PUBLIC_BASE_URL?.trim();
+  const railwayDomain = env.RAILWAY_PUBLIC_DOMAIN?.trim();
+
+  if (explicit) {
+    const normalized = normalizePublicBaseUrl(explicit, port);
+    if (!isLocalPublicBaseUrl(normalized) || !railwayDomain) {
+      return normalized;
+    }
+  }
+
+  if (railwayDomain) {
+    return normalizePublicBaseUrl(railwayDomain, port);
+  }
+
+  return normalizePublicBaseUrl(explicit, port);
+}
+
+/**
+ * When the configured base URL is still localhost (misconfigured deploy), rebuild it from
+ * the incoming request's forwarded host — Railway always sends X-Forwarded-*.
+ */
+export function publicBaseUrlFromRequest(
+  req: { protocol?: string; headers: Record<string, unknown> },
+  configured: string,
+): string {
+  if (!isLocalPublicBaseUrl(configured)) {
+    return configured.replace(/\/$/, "");
+  }
+
+  const protoHeader = req.headers["x-forwarded-proto"];
+  const hostHeader = req.headers["x-forwarded-host"] ?? req.headers.host;
+  const proto = String(protoHeader ?? req.protocol ?? "https")
+    .split(",")[0]
+    .trim();
+  const host = String(hostHeader ?? "")
+    .split(",")[0]
+    .trim();
+
+  if (!host || isLocalPublicBaseUrl(`http://${host}`)) {
+    return configured.replace(/\/$/, "");
+  }
+
+  return normalizePublicBaseUrl(`${proto}://${host}`, 443);
+}
+
 function resolveDataDir(): {
   dataDir: string;
   persistent: boolean;
@@ -95,7 +158,7 @@ export function loadConfig(): AppConfig {
     (Boolean(process.env.GOOGLE_ISSUER_ID) && Boolean(googleKey));
 
   const port = Number(process.env.PORT || 3000);
-  const publicBaseUrl = normalizePublicBaseUrl(process.env.PUBLIC_BASE_URL, port);
+  const publicBaseUrl = resolvePublicBaseUrl(process.env, port);
 
   const smsProviderRaw = (process.env.SMS_PROVIDER || "none").toLowerCase();
   const smsProvider: SmsProvider = (

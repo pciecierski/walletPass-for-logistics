@@ -15,6 +15,7 @@ import { sendPasswordResetEmail, sendPasswordSetupEmail } from "./mail.js";
 import { getOptionalAccount, parseCookies, SESSION_COOKIE } from "./requestAuth.js";
 import type { AuthStore } from "./store.js";
 import { toPublicAccount, type Account } from "./types.js";
+import { isLocalPublicBaseUrl } from "../config.js";
 
 const SESSION_DAYS = 30;
 const PASSWORD_SETUP_HOURS = 48;
@@ -59,10 +60,17 @@ function appBaseUrl(req: Request, publicBaseUrl: string): string {
   const configured =
     process.env.APP_BASE_URL?.trim().replace(/\/$/, "") ||
     publicBaseUrl.replace(/\/$/, "");
-  if (configured) return configured;
-  const proto = String(req.headers["x-forwarded-proto"] ?? req.protocol);
-  const host = String(req.headers["x-forwarded-host"] ?? req.headers.host ?? "localhost:3000");
-  return `${proto}://${host}`;
+  if (configured && !isLocalPublicBaseUrl(configured)) return configured;
+  const proto = String(req.headers["x-forwarded-proto"] ?? req.protocol)
+    .split(",")[0]
+    .trim();
+  const host = String(req.headers["x-forwarded-host"] ?? req.headers.host ?? "localhost:3000")
+    .split(",")[0]
+    .trim();
+  if (host && !isLocalPublicBaseUrl(`http://${host}`)) {
+    return `${proto}://${host}`.replace(/\/$/, "");
+  }
+  return configured || `http://localhost:3000`;
 }
 
 function readString(value: unknown, max: number): string | null {

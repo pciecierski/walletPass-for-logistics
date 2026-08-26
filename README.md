@@ -120,6 +120,14 @@ railway variable set PUBLIC_BASE_URL=https://your-domain.up.railway.app
 
 `PUBLIC_BASE_URL` must include the scheme (`https://…`). A host-only value like `walletpass-for-logistics.pl` breaks Google Wallet image URLs and Save-to-Wallet links.
 
+If `PUBLIC_BASE_URL` is unset (or still points at `localhost`), the app auto-uses Railway’s `RAILWAY_PUBLIC_DOMAIN`. For a custom domain, set:
+
+```bash
+railway variable set PUBLIC_BASE_URL=https://your-custom-domain.example
+```
+
+In the Railway dashboard you can also reference the generated domain as `https://${{RAILWAY_PUBLIC_DOMAIN}}`.
+
 ### Persist passes across deploys (volume, no database)
 
 Passes are stored as files under `DATA_DIR` (default `/data` in production). Container disk is wiped on every deploy unless you attach a **Railway Volume**:
