@@ -16,6 +16,13 @@ import {
   APPLE_COMING_SOON_MESSAGE,
   WALLET_FEATURES,
 } from "../lib/wallet-features.js";
+import { publicBaseUrlFromRequest } from "../config.js";
+
+function configForRequest(config: AppConfig, req: Request): AppConfig {
+  const publicBaseUrl = publicBaseUrlFromRequest(req, config.publicBaseUrl);
+  if (publicBaseUrl === config.publicBaseUrl) return config;
+  return { ...config, publicBaseUrl };
+}
 
 export function createApiRouter(config: AppConfig, store: PassStore): Router {
   const router = Router();
@@ -24,12 +31,13 @@ export function createApiRouter(config: AppConfig, store: PassStore): Router {
     res.json({ ok: true, service: "walletpass-for-logistics" });
   });
 
-  router.get("/status", (_req, res) => {
+  router.get("/status", (req, res) => {
+    const runtimeConfig = configForRequest(config, req);
     const apple = appleStatus(config);
     const google = googleStatus(config);
     const sms = smsStatus(config);
     res.json({
-      publicBaseUrl: config.publicBaseUrl,
+      publicBaseUrl: runtimeConfig.publicBaseUrl,
       storage: {
         backend: config.storage.backend,
         dataDir: config.dataDir,
@@ -57,7 +65,7 @@ export function createApiRouter(config: AppConfig, store: PassStore): Router {
         classId: config.google.classId || null,
         heroImageUrl: config.google.heroImageUrl || null,
         logoImageUrl: config.google.logoImageUrl || null,
-        defaultHeroImageUrl: `${config.publicBaseUrl}/wallet-assets/logistics-park-gate-hero.jpg`,
+        defaultHeroImageUrl: `${runtimeConfig.publicBaseUrl}/wallet-assets/logistics-park-gate-hero.jpg`,
       },
       platforms: {
         create: WALLET_FEATURES.appleEnabled ? ("both" as const) : ("google" as const),
@@ -83,12 +91,13 @@ export function createApiRouter(config: AppConfig, store: PassStore): Router {
       res.status(404).json({ error: "Pass not found" });
       return;
     }
+    const baseUrl = configForRequest(config, req).publicBaseUrl;
     res.json({
       pass,
       urls: {
-        page: `${config.publicBaseUrl}${pass.statusPagePath}`,
-        apple: `${config.publicBaseUrl}${pass.appleDownloadPath}`,
-        google: `${config.publicBaseUrl}${pass.googleSavePath}`,
+        page: `${baseUrl}${pass.statusPagePath}`,
+        apple: `${baseUrl}${pass.appleDownloadPath}`,
+        google: `${baseUrl}${pass.googleSavePath}`,
       },
       wallets: {
         apple: WALLET_FEATURES.appleEnabled,
@@ -105,6 +114,7 @@ export function createApiRouter(config: AppConfig, store: PassStore): Router {
         return;
       }
 
+      const runtimeConfig = configForRequest(config, req);
       const { sendSms: sendSmsFlag, ...rest } = parsed.data;
       let recipientPhone = rest.recipientPhone?.trim() || undefined;
       if (recipientPhone) {
@@ -120,7 +130,7 @@ export function createApiRouter(config: AppConfig, store: PassStore): Router {
         platforms: "google",
         recipientPhone,
       };
-      const stored = store.create(input, config.publicBaseUrl);
+      const stored = store.create(input, runtimeConfig.publicBaseUrl);
       const dir = store.passDir(stored.id);
 
       let appleReady = false;
@@ -136,25 +146,25 @@ export function createApiRouter(config: AppConfig, store: PassStore): Router {
 
       if (wantApple) {
         try {
-          if (appleStatus(config).configured) {
-            await buildApplePass(config, stored, dir);
+          if (appleStatus(runtimeConfig).configured) {
+            await buildApplePass(runtimeConfig, stored, dir);
             appleReady = true;
           } else {
-            await writeApplePreview(config, stored, dir);
+            await writeApplePreview(runtimeConfig, stored, dir);
             errors.push(
-              `Apple preview only — configure: ${appleStatus(config).missing.join(", ")}`,
+              `Apple preview only — configure: ${appleStatus(runtimeConfig).missing.join(", ")}`,
             );
           }
         } catch (err) {
           errors.push(`Apple: ${(err as Error).message}`);
-          await writeApplePreview(config, stored, dir).catch(() => undefined);
+          await writeApplePreview(runtimeConfig, stored, dir).catch(() => undefined);
         }
       }
 
       if (wantGoogle) {
         try {
-          if (googleStatus(config).configured) {
-            googleSaveUrl = await createGoogleSaveUrl(config, stored);
+          if (googleStatus(runtimeConfig).configured) {
+            googleSaveUrl = await createGoogleSaveUrl(runtimeConfig, stored);
             googleReady = true;
             fs.writeFileSync(
               `${dir}/google-save-url.txt`,
@@ -168,7 +178,7 @@ export function createApiRouter(config: AppConfig, store: PassStore): Router {
               JSON.stringify(demo, null, 2),
               "utf8",
             );
-            errors.push(`Google preview only — configure: ${googleStatus(config).missing.join(", ")}`);
+            errors.push(`Google preview only — configure: ${googleStatus(runtimeConfig).missing.join(", ")}`);
           }
         } catch (err) {
           errors.push(`Google: ${(err as Error).message}`);
@@ -181,18 +191,18 @@ export function createApiRouter(config: AppConfig, store: PassStore): Router {
         googleSaveUrl,
       });
 
-      const pageUrl = `${config.publicBaseUrl}${updated.statusPagePath}`;
+      const pageUrl = `${runtimeConfig.publicBaseUrl}${updated.statusPagePath}`;
       const urls = {
         page: pageUrl,
-        apple: `${config.publicBaseUrl}${updated.appleDownloadPath}`,
-        google: `${config.publicBaseUrl}${updated.googleSavePath}`,
+        apple: `${runtimeConfig.publicBaseUrl}${updated.appleDownloadPath}`,
+        google: `${runtimeConfig.publicBaseUrl}${updated.googleSavePath}`,
       };
 
       let sms = undefined as Awaited<ReturnType<typeof sendPassSms>> | undefined;
       const shouldSendSms =
         Boolean(recipientPhone) && (sendSmsFlag === undefined ? true : sendSmsFlag);
       if (shouldSendSms && recipientPhone) {
-        sms = await sendPassSms(config, {
+        sms = await sendPassSms(runtimeConfig, {
           to: recipientPhone,
           organizationName: input.organizationName,
           pageUrl,
@@ -253,8 +263,9 @@ export function createApiRouter(config: AppConfig, store: PassStore): Router {
       });
     }
 
-    const pageUrl = `${config.publicBaseUrl}${pass.statusPagePath}`;
-    const sms = await sendPassSms(config, {
+    const runtimeConfig = configForRequest(config, req);
+    const pageUrl = `${runtimeConfig.publicBaseUrl}${pass.statusPagePath}`;
+    const sms = await sendPassSms(runtimeConfig, {
       to: normalized,
       organizationName: pass.input.organizationName,
       pageUrl,
@@ -283,22 +294,23 @@ export function createApiRouter(config: AppConfig, store: PassStore): Router {
       return;
     }
 
+    const runtimeConfig = configForRequest(config, req);
     const dir = store.passDir(pass.id);
     const pkpassPath = `${dir}/pass.pkpass`;
 
     try {
       if (!fs.existsSync(pkpassPath)) {
-        if (!appleStatus(config).configured) {
+        if (!appleStatus(runtimeConfig).configured) {
           res.status(503).json({
             error: "Apple Wallet certificates are not configured",
-            missing: appleStatus(config).missing,
+            missing: appleStatus(runtimeConfig).missing,
             preview: fs.existsSync(`${dir}/pass.json`)
-              ? `${config.publicBaseUrl}/api/passes/${pass.id}/preview`
+              ? `${runtimeConfig.publicBaseUrl}/api/passes/${pass.id}/preview`
               : null,
           });
           return;
         }
-        await buildApplePass(config, pass, dir);
+        await buildApplePass(runtimeConfig, pass, dir);
         store.update(pass.id, { appleReady: true });
       }
 
@@ -340,9 +352,10 @@ export function createApiRouter(config: AppConfig, store: PassStore): Router {
         return;
       }
 
-      // Always rebuild the Save URL so JWT reflects current PUBLIC_BASE_URL,
+      // Always rebuild the Save URL so JWT reflects current public base URL,
       // class graphics, and image overrides (cached JWTs can go stale/broken).
-      const url = await createGoogleSaveUrl(config, pass);
+      const runtimeConfig = configForRequest(config, req);
+      const url = await createGoogleSaveUrl(runtimeConfig, pass);
       store.update(pass.id, { googleReady: true, googleSaveUrl: url });
 
       if (req.query.redirect === "1" || req.query.redirect === "true") {

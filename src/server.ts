@@ -14,6 +14,8 @@ const authStore = createAuthStore(config.dataDir);
 
 const app = express();
 app.disable("x-powered-by");
+// Railway (and other reverse proxies) set X-Forwarded-* — needed for public URL recovery.
+app.set("trust proxy", 1);
 app.use(express.json({ limit: "1mb" }));
 
 app.use((req, res, next) => {
