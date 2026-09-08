@@ -7,3 +7,6 @@ healthcheckPath = "/api/health"
 healthcheckTimeout = 30
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 3
+
+# Persist passes/auth/logos: in the Railway dashboard add a volume with mount path /data.
+# The app uses RAILWAY_VOLUME_MOUNT_PATH (or DATA_DIR=/data). Do not set DATA_DIR=./data.

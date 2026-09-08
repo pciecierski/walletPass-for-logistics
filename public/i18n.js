@@ -38,6 +38,10 @@ const messages = {
     "form.platformHint":
       "Apple Wallet configuration is unavailable for now and will be activated soon.",
     "form.logoText": "Logo text",
+    "form.logoImage": "Logo",
+    "form.logoImageHint": "Optional. If you don’t pick a file, the default logistics-park gate logo is used.",
+    "form.relevantDate": "Date",
+    "form.relevantDateHint": "Date and time shown on the pass (visit, booking or event).",
     "form.barcode": "Barcode message",
     "form.barcodePh": "Auto-uses serial if empty",
     "form.phone": "Recipient phone (SMS)",
@@ -86,7 +90,7 @@ const messages = {
     "setup.storageHintPersistent":
       "Pass data is stored on a Railway volume and survives deploys.",
     "setup.storageHintEphemeral":
-      "Pass data is on ephemeral disk and will be lost on redeploy. Attach a Railway volume mounted at /data (or set DATA_DIR to the volume mount path).",
+      "Pass data is on ephemeral disk and will be lost on redeploy. Attach a Railway volume mounted at /data. Do not set DATA_DIR=./data on Railway.",
     "footer.tagline": "Google Wallet · Apple Wallet coming soon",
     "pass.meta.title": "Your pass · WalletPass for Logistics",
     "pass.loading": "Loading pass…",
@@ -202,6 +206,10 @@ const messages = {
     "form.platformHint":
       "Konfiguracja Apple Wallet jest na razie niedostępna i zostanie aktywowana wkrótce.",
     "form.logoText": "Tekst logo",
+    "form.logoImage": "Logo",
+    "form.logoImageHint": "Opcjonalnie. Jeśli nie wskażesz pliku, użyte zostanie domyślne logo bramy wjazdowej.",
+    "form.relevantDate": "Data",
+    "form.relevantDateHint": "Data i godzina na przepustce (wizyta, awizacja lub wydarzenie).",
     "form.barcode": "Treść kodu kreskowego",
     "form.barcodePh": "Jeśli puste — użyty zostanie numer seryjny",
     "form.phone": "Telefon odbiorcy (SMS)",
@@ -250,7 +258,7 @@ const messages = {
     "setup.storageHintPersistent":
       "Dane przepustek są na volume Railway i przetrwają deploye.",
     "setup.storageHintEphemeral":
-      "Dane są na efemerycznym dysku i znikną po redeploy. Podłącz volume Railway pod /data (albo ustaw DATA_DIR na ścieżkę mountu).",
+      "Dane są na efemerycznym dysku i znikną po redeploy. Podłącz volume Railway pod /data. Na Railway nie ustawiaj DATA_DIR=./data.",
     "footer.tagline": "Google Wallet · Apple Wallet wkrótce",
     "pass.meta.title": "Twoja przepustka · WalletPass for Logistics",
     "pass.loading": "Ładowanie przepustki…",

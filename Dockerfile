@@ -10,12 +10,13 @@ FROM node:22-bookworm-slim
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
-# Default data path for a Railway volume mount (survives deploys).
+# Runtime data (passes, logos, accounts) — must match the Railway volume mount path.
 ENV DATA_DIR=/data
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
 COPY --from=build /app/dist ./dist
 COPY public ./public
-RUN mkdir -p /data certs && chown -R node:node /data
+# Image fallback only. At runtime Railway overlays this path with the volume.
+RUN mkdir -p /data /app/certs
 EXPOSE 3000
 CMD ["node", "dist/server.js"]

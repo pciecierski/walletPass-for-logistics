@@ -130,22 +130,21 @@ In the Railway dashboard you can also reference the generated domain as `https:/
 
 ### Persist passes across deploys (volume, no database)
 
-Passes are stored as files under `DATA_DIR` (default `/data` in production). Container disk is wiped on every deploy unless you attach a **Railway Volume**:
+Passes, uploaded logos and accounts are stored as files under `/data` in production. Container disk is wiped on every deploy unless you attach a **Railway Volume** with mount path **`/data`**:
 
 ```bash
-# Attach a persistent volume to the WalletPass for Logistics service at /data
 railway volume add --service <your-service-name> --mount-path /data
 ```
 
 Or in the Railway dashboard: **Add volume → mount path `/data`**.
 
-The app auto-detects `RAILWAY_VOLUME_MOUNT_PATH`. Keep `DATA_DIR=/data` (Dockerfile default) so it matches the mount. After the volume is attached, redeploy once — new passes will survive future deploys.
+Do **not** set `DATA_DIR=./data` as a Railway variable — that writes into the container image and passes vanish on deploy. The app prefers `RAILWAY_VOLUME_MOUNT_PATH` (set automatically when the volume is attached) and otherwise uses `/data`.
 
-Check status in the studio Setup panel, or:
+After the volume is attached, redeploy once. Check the studio Setup panel, or:
 
 ```bash
-curl https://your-domain.up.railway.app/api/status
-# look for storage.persistent === true
+curl https://your-domain.up.railway.app/api/health
+# storage.persistent should be true
 ```
 
 Mount Apple PEMs under `/app/certs` or set the `APPLE_*_PATH` variables. Put the Google service account JSON in `GOOGLE_SERVICE_ACCOUNT_KEY`.
