@@ -44,6 +44,30 @@ logoInput?.addEventListener("change", () => {
   logoPreview.src = url;
 });
 
+const DEMO_LOGO_TEXT = "PRZEPUSTKA DEMO";
+
+function bindColorPickers(root) {
+  root.querySelectorAll(".color-picker").forEach((picker) => {
+    const input = picker.querySelector('input[type="color"]');
+    const swatch = picker.querySelector("[data-color-swatch]");
+    const hex = picker.querySelector("[data-color-hex]");
+    if (!input) return;
+
+    const sync = () => {
+      const value = (input.value || "#000000").toUpperCase();
+      picker.style.setProperty("--swatch", value);
+      if (swatch) swatch.style.backgroundColor = value;
+      if (hex) hex.textContent = value;
+    };
+
+    input.addEventListener("input", sync);
+    input.addEventListener("change", sync);
+    sync();
+  });
+}
+
+bindColorPickers(form);
+
 async function api(path, options = {}) {
   const { headers: extraHeaders, ...rest } = options;
   const headers = { ...extraHeaders };
@@ -148,7 +172,7 @@ form.addEventListener("submit", async (event) => {
     description: String(fd.get("description") || "").trim(),
     style,
     platforms: "google",
-    logoText: String(fd.get("logoText") || "").trim() || undefined,
+    logoText: DEMO_LOGO_TEXT,
     barcodeMessage: String(fd.get("barcodeMessage") || "").trim() || undefined,
     relevantDate: String(fd.get("relevantDate") || "").trim() || undefined,
     recipientPhone: String(fd.get("recipientPhone") || "").trim() || undefined,

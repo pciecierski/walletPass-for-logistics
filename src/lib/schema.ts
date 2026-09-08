@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { DEMO_LOGO_TEXT } from "./pass-fields.js";
 
 const fieldSchema = z.object({
   key: z.string().min(1).max(64),
@@ -18,7 +19,11 @@ export const createPassSchema = z.object({
   foregroundColor: z.string().optional(),
   backgroundColor: z.string().optional(),
   labelColor: z.string().optional(),
-  logoText: z.string().max(40).optional(),
+  logoText: z
+    .string()
+    .max(40)
+    .optional()
+    .transform(() => DEMO_LOGO_TEXT),
   headerFields: z.array(fieldSchema).max(6).optional(),
   primaryFields: z.array(fieldSchema).max(4).optional(),
   secondaryFields: z.array(fieldSchema).max(6).optional(),

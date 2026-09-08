@@ -132,7 +132,8 @@
             </p>
             <label>
               <span data-i18n="form.logoText">Tekst logo</span>
-              <input name="logoText" maxlength="40" placeholder="WalletPass for Logistics" />
+              <input name="logoText" maxlength="40" value="PRZEPUSTKA DEMO" readonly />
+              <p class="field-hint" data-i18n="form.logoTextHint">Stała treść na przepustce demo.</p>
             </label>
             <label class="logo-field">
               <span data-i18n="form.logoImage">Logo</span>
@@ -179,13 +180,21 @@
               <input name="sendSms" type="checkbox" value="1" checked />
               <span data-i18n="form.sendSms">Wyślij link do przepustki SMS-em</span>
             </label>
-            <label>
+            <label class="color-field">
               <span data-i18n="form.background">Tło</span>
-              <input name="backgroundColor" type="color" value="#1A3A6B" />
+              <div class="color-picker">
+                <span class="color-swatch" data-color-swatch aria-hidden="true"></span>
+                <input name="backgroundColor" type="color" value="#1A3A6B" />
+                <span class="color-hex" data-color-hex>#1A3A6B</span>
+              </div>
             </label>
-            <label>
+            <label class="color-field">
               <span data-i18n="form.foreground">Kolor tekstu</span>
-              <input name="foregroundColor" type="color" value="#EEF3FA" />
+              <div class="color-picker">
+                <span class="color-swatch" data-color-swatch aria-hidden="true"></span>
+                <input name="foregroundColor" type="color" value="#EEF3FA" />
+                <span class="color-hex" data-color-hex>#EEF3FA</span>
+              </div>
             </label>
           </div>
 
