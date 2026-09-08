@@ -1,5 +1,7 @@
 import type { CreatePassInput, StoredPass } from "../types.js";
 
+export const DEMO_LOGO_TEXT = "PRZEPUSTKA DEMO";
+
 /** Value encoded in the barcode / QR and shown under it. */
 export function resolveBarcodeMessage(stored: Pick<StoredPass, "serialNumber" | "input">): string {
   const custom = stored.input.barcodeMessage?.trim();

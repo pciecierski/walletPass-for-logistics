@@ -3,7 +3,7 @@ import path from "node:path";
 import { PKPass } from "passkit-generator";
 import type { AppConfig, CreatePassInput, StoredPass } from "../types.js";
 import { cssColorToRgb, generatePassImages } from "../lib/images.js";
-import { formatPassDateLabel, resolveBarcodeMessage } from "../lib/pass-fields.js";
+import { DEMO_LOGO_TEXT, formatPassDateLabel, resolveBarcodeMessage } from "../lib/pass-fields.js";
 
 const BARCODE_MAP = {
   QR: "PKBarcodeFormatQR",
@@ -152,7 +152,7 @@ function buildPassJson(
     organizationName:
       config.apple.organizationName || input.organizationName || "WalletPass for Logistics",
     description: input.description,
-    logoText: input.logoText || input.organizationName,
+    logoText: input.logoText || DEMO_LOGO_TEXT,
     foregroundColor: cssColorToRgb(fg),
     backgroundColor: cssColorToRgb(bg),
     labelColor: cssColorToRgb(label),

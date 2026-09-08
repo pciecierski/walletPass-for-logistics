@@ -38,6 +38,7 @@ const messages = {
     "form.platformHint":
       "Apple Wallet configuration is unavailable for now and will be activated soon.",
     "form.logoText": "Logo text",
+    "form.logoTextHint": "Fixed text on the demo pass.",
     "form.logoImage": "Logo",
     "form.logoImageHint": "Optional. If you don’t pick a file, the default logistics-park gate logo is used.",
     "form.relevantDate": "Date",
@@ -206,6 +207,7 @@ const messages = {
     "form.platformHint":
       "Konfiguracja Apple Wallet jest na razie niedostępna i zostanie aktywowana wkrótce.",
     "form.logoText": "Tekst logo",
+    "form.logoTextHint": "Stała treść na przepustce demo.",
     "form.logoImage": "Logo",
     "form.logoImageHint": "Opcjonalnie. Jeśli nie wskażesz pliku, użyte zostanie domyślne logo bramy wjazdowej.",
     "form.relevantDate": "Data",

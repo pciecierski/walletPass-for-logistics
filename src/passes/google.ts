@@ -2,6 +2,7 @@ import { GoogleAuth } from "google-auth-library";
 import { SignJWT, importPKCS8 } from "jose";
 import { DEFAULT_HERO_ASSET, DEFAULT_LOGO_ASSET } from "../lib/images.js";
 import {
+  DEMO_LOGO_TEXT,
   formatPassDateLabel,
   googleLocalTimeInterval,
   passEventName,
@@ -372,6 +373,7 @@ function buildObject(
             language: "en-US",
             value:
               input.logoText ||
+              DEMO_LOGO_TEXT ||
               (input.style === "boardingPass"
                 ? `${input.headerFields?.[0]?.value || "DEP"} → ${input.headerFields?.[1]?.value || "ARR"}`
                 : input.description),
