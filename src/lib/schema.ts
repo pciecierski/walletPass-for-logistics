@@ -26,7 +26,7 @@ export const createPassSchema = z.object({
   backFields: z.array(fieldSchema).max(10).optional(),
   barcodeMessage: z.string().max(256).optional(),
   barcodeFormat: z.enum(["QR", "PDF417", "Aztec", "Code128"]).optional(),
-  relevantDate: z.string().optional(),
+  relevantDate: z.string().max(40).optional(),
   transitType: z
     .enum([
       "PKTransitTypeAir",
@@ -43,7 +43,14 @@ export const createPassSchema = z.object({
   serialPrefix: z.string().max(12).optional(),
   recipientPhone: z.string().min(9).max(20).optional(),
   /** When true (default if recipientPhone set), send SMS with the public pass page link. */
-  sendSms: z.boolean().optional(),
+  sendSms: z
+    .union([z.boolean(), z.string()])
+    .optional()
+    .transform((value) => {
+      if (value === undefined) return undefined;
+      if (typeof value === "boolean") return value;
+      return value === "1" || value.toLowerCase() === "true";
+    }),
 });
 
 export type CreatePassBody = z.infer<typeof createPassSchema>;

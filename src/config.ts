@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import type { AppConfig, SmsProvider } from "./types.js";
+import { ensureDataLayout, probeDirWritable, resolveDataDir } from "./lib/storage.js";
 
 function truthy(value: string | undefined): boolean {
   if (!value) return false;
@@ -85,44 +86,6 @@ export function publicBaseUrlFromRequest(
   return normalizePublicBaseUrl(`${proto}://${host}`, 443);
 }
 
-function resolveDataDir(): {
-  dataDir: string;
-  persistent: boolean;
-  volumeMountPath?: string;
-} {
-  const volumeMountPath = process.env.RAILWAY_VOLUME_MOUNT_PATH?.trim() || undefined;
-
-  if (process.env.DATA_DIR?.trim()) {
-    const dataDir = resolvePath(process.env.DATA_DIR, path.join(process.cwd(), "data"));
-    const persistent = Boolean(
-      volumeMountPath &&
-        (dataDir === volumeMountPath || dataDir.startsWith(`${volumeMountPath}${path.sep}`)),
-    );
-    return { dataDir, persistent, volumeMountPath };
-  }
-
-  if (volumeMountPath) {
-    return {
-      dataDir: path.isAbsolute(volumeMountPath)
-        ? volumeMountPath
-        : path.resolve(process.cwd(), volumeMountPath),
-      persistent: true,
-      volumeMountPath,
-    };
-  }
-
-  // Production containers default to /data so a Railway volume can mount there.
-  if (process.env.NODE_ENV === "production") {
-    return { dataDir: "/data", persistent: false, volumeMountPath };
-  }
-
-  return {
-    dataDir: path.join(process.cwd(), "data"),
-    persistent: false,
-    volumeMountPath,
-  };
-}
-
 export function loadConfig(): AppConfig {
   const { dataDir, persistent, volumeMountPath } = resolveDataDir();
   const certsDir = resolvePath(process.env.CERTS_DIR, path.join(process.cwd(), "certs"));
@@ -167,9 +130,8 @@ export function loadConfig(): AppConfig {
     ? (smsProviderRaw as SmsProvider)
     : "none";
 
-  fs.mkdirSync(dataDir, { recursive: true });
+  ensureDataLayout(dataDir);
   fs.mkdirSync(certsDir, { recursive: true });
-  fs.mkdirSync(path.join(dataDir, "passes"), { recursive: true });
 
   return {
     port,
@@ -179,6 +141,7 @@ export function loadConfig(): AppConfig {
     storage: {
       persistent,
       volumeMountPath,
+      writable: probeDirWritable(dataDir),
       backend: "filesystem",
     },
     apple: {

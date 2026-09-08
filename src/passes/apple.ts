@@ -3,6 +3,7 @@ import path from "node:path";
 import { PKPass } from "passkit-generator";
 import type { AppConfig, CreatePassInput, StoredPass } from "../types.js";
 import { cssColorToRgb, generatePassImages } from "../lib/images.js";
+import { formatPassDateLabel, resolveBarcodeMessage } from "../lib/pass-fields.js";
 
 const BARCODE_MAP = {
   QR: "PKBarcodeFormatQR",
@@ -78,13 +79,13 @@ export async function buildApplePass(
 
   if (input.style === "boardingPass") {
     pass.setBarcodes({
-      message: input.barcodeMessage || stored.serialNumber,
+      message: resolveBarcodeMessage(stored),
       format: BARCODE_MAP[input.barcodeFormat || "QR"],
       messageEncoding: "iso-8859-1",
     });
   } else {
     pass.setBarcodes({
-      message: input.barcodeMessage || stored.serialNumber,
+      message: resolveBarcodeMessage(stored),
       format: BARCODE_MAP[input.barcodeFormat || "QR"],
       messageEncoding: "iso-8859-1",
     });
@@ -159,7 +160,7 @@ function buildPassJson(
     [styleKey]: styleBlock,
     barcodes: [
       {
-        message: input.barcodeMessage || stored.serialNumber,
+        message: resolveBarcodeMessage(stored),
         format: BARCODE_MAP[input.barcodeFormat || "QR"],
         messageEncoding: "iso-8859-1",
       },
@@ -195,8 +196,12 @@ function defaultPrimary(input: CreatePassInput) {
 }
 
 function defaultSecondary(input: CreatePassInput) {
+  const fields: { key: string; label: string; value: string }[] = [];
+  const dateLabel = formatPassDateLabel(input.relevantDate);
+  if (dateLabel) fields.push({ key: "date", label: "Date", value: dateLabel });
   if (input.style === "eventTicket" && input.venue) {
-    return [{ key: "venue", label: "Venue", value: input.venue }];
+    fields.push({ key: "venue", label: "Venue", value: input.venue });
   }
+  if (fields.length) return fields;
   return [{ key: "org", label: "Issued by", value: input.organizationName }];
 }

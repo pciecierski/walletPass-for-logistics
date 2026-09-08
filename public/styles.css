@@ -482,9 +482,23 @@ textarea {
   color: var(--ink);
 }
 
-input[type="color"] {
-  padding: 0.35rem;
-  height: 2.75rem;
+input[type="file"] {
+  padding: 0.45rem 0.55rem;
+}
+
+label .field-hint {
+  grid-column: auto;
+  margin: 0;
+  font-weight: 400;
+}
+
+.logo-preview {
+  width: 88px;
+  height: 88px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--moss) 22%, transparent);
+  background: color-mix(in srgb, white 70%, transparent);
 }
 
 .checkbox-label {
