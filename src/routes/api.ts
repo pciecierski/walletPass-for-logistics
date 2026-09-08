@@ -14,7 +14,7 @@ import {
 } from "../passes/google.js";
 import { normalizePhone } from "../lib/phone.js";
 import { sendPassSms, smsStatus } from "../lib/sms.js";
-import { DEFAULT_LOGO_ASSET, normalizeWalletLogo } from "../lib/images.js";
+import { DEFAULT_HERO_ASSET, DEFAULT_LOGO_ASSET, normalizeWalletLogo } from "../lib/images.js";
 import {
   APPLE_COMING_SOON_MESSAGE,
   WALLET_FEATURES,
@@ -96,7 +96,7 @@ export function createApiRouter(config: AppConfig, store: PassStore): Router {
         classId: config.google.classId || null,
         heroImageUrl: config.google.heroImageUrl || null,
         logoImageUrl: config.google.logoImageUrl || null,
-        defaultHeroImageUrl: `${runtimeConfig.publicBaseUrl}/wallet-assets/logistics-park-gate-hero.jpg`,
+        defaultHeroImageUrl: `${runtimeConfig.publicBaseUrl}${DEFAULT_HERO_ASSET}`,
         defaultLogoImageUrl: `${runtimeConfig.publicBaseUrl}${DEFAULT_LOGO_ASSET}`,
       },
       platforms: {

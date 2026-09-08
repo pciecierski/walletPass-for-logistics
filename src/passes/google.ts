@@ -1,6 +1,6 @@
 import { GoogleAuth } from "google-auth-library";
 import { SignJWT, importPKCS8 } from "jose";
-import { DEFAULT_LOGO_ASSET } from "../lib/images.js";
+import { DEFAULT_HERO_ASSET, DEFAULT_LOGO_ASSET } from "../lib/images.js";
 import {
   formatPassDateLabel,
   googleLocalTimeInterval,
@@ -149,14 +149,10 @@ function resolvePassImages(
     absoluteHttpsUri(imageUri(classResource?.wideLogo)) ||
     absoluteHttpsUri(imageUri(classResource?.wideProgramLogo));
 
-  const defaultHero = absoluteHttpsUri(
-    `${config.publicBaseUrl}/wallet-assets/logistics-park-gate-hero.jpg`,
-  );
+  const defaultHero = absoluteHttpsUri(`${config.publicBaseUrl}${DEFAULT_HERO_ASSET}`);
 
   const heroUri =
-    absoluteHttpsUri(config.google.heroImageUrl) ||
-    classHero ||
-    (style === "generic" || style === "boardingPass" ? defaultHero : undefined);
+    absoluteHttpsUri(config.google.heroImageUrl) || classHero || defaultHero;
 
   const customLogo = absoluteHttpsUri(stored?.input.logoImageUrl);
   const logoUri =
@@ -336,12 +332,15 @@ function buildObject(
     common.validTimeInterval = interval;
   }
 
-  // Generic objects carry logo/hero themselves (class has no heroImage/logo fields).
-  // Event/coupon/loyalty inherit the class logo — do not send object.logo (unsupported).
+  // Generic objects carry logo themselves (class has no logo field).
+  // Hero is set on every object so the realistic park photo sits on the card
+  // (bottom banner on Generic; hero on Event / Offer / Loyalty).
   const isGenericStyle = input.style === "generic" || input.style === "boardingPass";
-  if (isGenericStyle) {
-    if (images.logo) common.logo = images.logo;
-    if (images.heroImage) common.heroImage = images.heroImage;
+  if (isGenericStyle && images.logo) {
+    common.logo = images.logo;
+  }
+  if (images.heroImage) {
+    common.heroImage = images.heroImage;
   }
 
   switch (input.style) {

@@ -91,6 +91,7 @@ function renderPass(data) {
     <p style="margin:0.75rem 0 0;opacity:.85">${escapeHtml(
       dateLine || input.venue || input.balance || input.discount || pass.serialNumber,
     )}</p>
+    <img src="/wallet-assets/logistics-park-gate-hero-banner.jpg" alt="" width="1032" height="336" style="display:block;width:calc(100% + 3rem);max-width:none;margin:1rem -1.5rem -1.5rem;height:auto;object-fit:cover">
   `;
 
   renderWalletActions({ data, wallets, device, preference });
