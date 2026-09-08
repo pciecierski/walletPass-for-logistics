@@ -1,6 +1,7 @@
 import sharp from "sharp";
 
 export const DEFAULT_LOGO_ASSET = "/wallet-assets/logistics-park-gate-logo.png";
+export const DEFAULT_HERO_ASSET = "/wallet-assets/logistics-park-gate-hero-banner.jpg";
 
 /** Square PNG for Google Wallet class/object logos (recommended 660×660). */
 export async function normalizeWalletLogo(buffer: Buffer): Promise<Buffer> {

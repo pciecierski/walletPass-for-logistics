@@ -33,24 +33,27 @@ export function toGoogleDateTime(value?: string): string | undefined {
   return stripToLocalDateTime(raw);
 }
 
-export function addDaysToLocalDateTime(local: string, days: number): string {
+export function addHoursToLocalDateTime(local: string, hours: number): string {
   const normalized = stripToLocalDateTime(local) ?? local;
   const [datePart, timePart = "00:00:00"] = normalized.split("T");
   const [year, month, day] = datePart.split("-").map(Number);
   const [hour, minute, second] = timePart.split(":").map(Number);
   const utc = Date.UTC(year, month - 1, day, hour, minute, second || 0);
-  return new Date(utc + days * 24 * 60 * 60 * 1000).toISOString().slice(0, 19);
+  return new Date(utc + hours * 60 * 60 * 1000).toISOString().slice(0, 19);
 }
+
+/** Event / visit duration shown on the pass (start → end). */
+export const EVENT_DURATION_HOURS = 4;
 
 /** Start/end pair for Google TimeInterval — both local, never mixed with offsets. */
 export function googleLocalTimeInterval(
   startValue?: string,
   endValue?: string,
-  endDaysAfterStart = 7,
+  endHoursAfterStart = EVENT_DURATION_HOURS,
 ): { start: { date: string }; end: { date: string } } | undefined {
   const start = toGoogleDateTime(startValue);
   if (!start) return undefined;
-  const end = toGoogleDateTime(endValue) ?? addDaysToLocalDateTime(start, endDaysAfterStart);
+  const end = toGoogleDateTime(endValue) ?? addHoursToLocalDateTime(start, endHoursAfterStart);
   return {
     start: { date: start },
     end: { date: end },

@@ -674,6 +674,7 @@ label .field-hint {
   color: #eef3fa;
   background: linear-gradient(145deg, #1a3a6b, #2a5080);
   min-height: 160px;
+  overflow: hidden;
   animation: rise 0.8s ease both;
 }
 
