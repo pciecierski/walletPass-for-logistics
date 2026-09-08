@@ -3,9 +3,9 @@ import { SignJWT, importPKCS8 } from "jose";
 import { DEFAULT_LOGO_ASSET } from "../lib/images.js";
 import {
   formatPassDateLabel,
+  googleLocalTimeInterval,
   passEventName,
   resolveBarcodeMessage,
-  toGoogleDateTime,
 } from "../lib/pass-fields.js";
 import type { AppConfig, CreatePassInput, StoredPass } from "../types.js";
 
@@ -226,8 +226,8 @@ function buildClass(config: AppConfig, stored: StoredPass) {
         provider: "WalletPass for Logistics",
       };
     case "eventTicket": {
-      const start = toGoogleDateTime(stored.input.relevantDate);
       const venueName = stored.input.venue?.trim();
+      const eventWhen = googleLocalTimeInterval(stored.input.relevantDate);
       return {
         ...base,
         eventName: {
@@ -241,7 +241,9 @@ function buildClass(config: AppConfig, stored: StoredPass) {
               },
             }
           : {}),
-        ...(start ? { dateTime: { start } } : {}),
+        ...(eventWhen
+          ? { dateTime: { start: eventWhen.start.date, end: eventWhen.end.date } }
+          : {}),
       };
     }
     case "storeCard":
@@ -327,13 +329,11 @@ function buildObject(
     textModulesData: textModules,
   };
 
-  const start = toGoogleDateTime(input.relevantDate) || stored.createdAt;
-  const end = stored.expiresAt;
-  if (start && end) {
-    common.validTimeInterval = {
-      start: { date: start },
-      end: { date: end },
-    };
+  const interval = input.relevantDate
+    ? googleLocalTimeInterval(input.relevantDate)
+    : googleLocalTimeInterval(stored.createdAt, stored.expiresAt);
+  if (interval) {
+    common.validTimeInterval = interval;
   }
 
   // Generic objects carry logo/hero themselves (class has no heroImage/logo fields).
