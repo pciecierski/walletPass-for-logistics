@@ -1,7 +1,5 @@
 import { Router, type Request, type Response } from "express";
 import fs from "node:fs";
-import path from "node:path";
-import multer from "multer";
 import { z } from "zod";
 import type { AppConfig, CreatePassInput } from "../types.js";
 import { PassStore } from "../passes/store.js";
@@ -14,31 +12,11 @@ import {
 } from "../passes/google.js";
 import { normalizePhone } from "../lib/phone.js";
 import { sendPassSms, smsStatus } from "../lib/sms.js";
-import { DEFAULT_LOGO_ASSET, normalizeWalletLogo } from "../lib/images.js";
 import {
   APPLE_COMING_SOON_MESSAGE,
   WALLET_FEATURES,
 } from "../lib/wallet-features.js";
 import { publicBaseUrlFromRequest } from "../config.js";
-
-const logoUpload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 2 * 1024 * 1024 },
-  fileFilter(_req, file, cb) {
-    if (/^image\/(png|jpe?g|webp|gif)$/i.test(file.mimetype)) {
-      cb(null, true);
-      return;
-    }
-    cb(new Error("Logo must be a PNG, JPEG, WebP or GIF image"));
-  },
-});
-
-function parseCreateBody(req: Request): unknown {
-  if (typeof req.body?.payload === "string") {
-    return JSON.parse(req.body.payload) as unknown;
-  }
-  return req.body;
-}
 
 function configForRequest(config: AppConfig, req: Request): AppConfig {
   const publicBaseUrl = publicBaseUrlFromRequest(req, config.publicBaseUrl);
@@ -50,15 +28,7 @@ export function createApiRouter(config: AppConfig, store: PassStore): Router {
   const router = Router();
 
   router.get("/health", (_req, res) => {
-    res.json({
-      ok: true,
-      service: "walletpass-for-logistics",
-      storage: {
-        dataDir: config.dataDir,
-        persistent: config.storage.persistent,
-        writable: config.storage.writable,
-      },
-    });
+    res.json({ ok: true, service: "walletpass-for-logistics" });
   });
 
   router.get("/status", (req, res) => {
@@ -72,11 +42,10 @@ export function createApiRouter(config: AppConfig, store: PassStore): Router {
         backend: config.storage.backend,
         dataDir: config.dataDir,
         persistent: config.storage.persistent,
-        writable: config.storage.writable,
         volumeMountPath: config.storage.volumeMountPath || null,
         hint: config.storage.persistent
           ? "Pass data is stored on a Railway volume and survives deploys."
-          : "Pass data is on ephemeral disk and will be lost on redeploy. Attach a Railway volume mounted at /data. Do not set DATA_DIR=./data on Railway.",
+          : "Pass data is on ephemeral disk and will be lost on redeploy. Attach a Railway volume mounted at /data (or set DATA_DIR to the volume mount path).",
       },
       apple: {
         enabled: false,
@@ -97,7 +66,6 @@ export function createApiRouter(config: AppConfig, store: PassStore): Router {
         heroImageUrl: config.google.heroImageUrl || null,
         logoImageUrl: config.google.logoImageUrl || null,
         defaultHeroImageUrl: `${runtimeConfig.publicBaseUrl}/wallet-assets/logistics-park-gate-hero.jpg`,
-        defaultLogoImageUrl: `${runtimeConfig.publicBaseUrl}${DEFAULT_LOGO_ASSET}`,
       },
       platforms: {
         create: WALLET_FEATURES.appleEnabled ? ("both" as const) : ("google" as const),
@@ -138,27 +106,9 @@ export function createApiRouter(config: AppConfig, store: PassStore): Router {
     });
   });
 
-  router.post(
-    "/passes",
-    (req, res, next) => {
-      logoUpload.single("logo")(req, res, (err: unknown) => {
-        if (err) {
-          res.status(400).json({ error: (err as Error).message });
-          return;
-        }
-        next();
-      });
-    },
-    async (req, res) => {
+  router.post("/passes", async (req, res) => {
     try {
-      let rawBody: unknown;
-      try {
-        rawBody = parseCreateBody(req);
-      } catch {
-        res.status(400).json({ error: "Invalid pass payload" });
-        return;
-      }
-      const parsed = createPassSchema.safeParse(rawBody);
+      const parsed = createPassSchema.safeParse(req.body);
       if (!parsed.success) {
         res.status(400).json({ error: "Invalid pass payload", details: parsed.error.flatten() });
         return;
@@ -180,25 +130,8 @@ export function createApiRouter(config: AppConfig, store: PassStore): Router {
         platforms: "google",
         recipientPhone,
       };
-      let stored = store.create(input, runtimeConfig.publicBaseUrl);
+      const stored = store.create(input, runtimeConfig.publicBaseUrl);
       const dir = store.passDir(stored.id);
-      const logoFile = (req as Request & { file?: Express.Multer.File }).file;
-      if (logoFile?.buffer?.length) {
-        try {
-          const png = await normalizeWalletLogo(logoFile.buffer);
-          fs.writeFileSync(path.join(dir, "logo.png"), png);
-          stored = store.update(stored.id, {
-            input: {
-              ...stored.input,
-              logoImageUrl: `${runtimeConfig.publicBaseUrl}/api/passes/${stored.id}/logo`,
-            },
-          });
-        } catch (err) {
-          res.status(400).json({ error: `Could not process logo: ${(err as Error).message}` });
-          store.delete(stored.id);
-          return;
-        }
-      }
 
       let appleReady = false;
       let googleReady = false;
@@ -433,24 +366,6 @@ export function createApiRouter(config: AppConfig, store: PassStore): Router {
     } catch (err) {
       res.status(500).json({ error: (err as Error).message });
     }
-  });
-
-  router.get("/passes/:id/logo", (req, res) => {
-    const pass = store.get(req.params.id);
-    if (!pass) {
-      res.status(404).json({ error: "Pass not found" });
-      return;
-    }
-    const custom = path.join(store.passDir(pass.id), "logo.png");
-    const filePath = fs.existsSync(custom)
-      ? custom
-      : path.join(process.cwd(), "public", "wallet-assets", "logistics-park-gate-logo.png");
-    if (!fs.existsSync(filePath)) {
-      res.status(404).json({ error: "Logo not found" });
-      return;
-    }
-    res.setHeader("Cache-Control", "public, max-age=86400");
-    res.type("png").send(fs.readFileSync(filePath));
   });
 
   router.delete("/passes/:id", (req, res) => {

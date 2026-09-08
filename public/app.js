@@ -31,28 +31,10 @@ function syncExtras() {
 styleSelect.addEventListener("change", syncExtras);
 syncExtras();
 
-const logoInput = form.querySelector('[name="logo"]');
-const logoPreview = document.getElementById("logo-preview");
-const defaultLogoSrc = logoPreview?.getAttribute("src") || "/wallet-assets/logistics-park-gate-logo.png";
-logoInput?.addEventListener("change", () => {
-  const file = logoInput.files?.[0];
-  if (!file || !logoPreview) {
-    if (logoPreview) logoPreview.src = defaultLogoSrc;
-    return;
-  }
-  const url = URL.createObjectURL(file);
-  logoPreview.src = url;
-});
-
-async function api(path, options = {}) {
-  const { headers: extraHeaders, ...rest } = options;
-  const headers = { ...extraHeaders };
-  if (!(rest.body instanceof FormData) && !headers["Content-Type"]) {
-    headers["Content-Type"] = "application/json";
-  }
+async function api(path, options) {
   const res = await fetch(path, {
-    ...rest,
-    headers,
+    headers: { "Content-Type": "application/json", ...(options?.headers || {}) },
+    ...options,
   });
   const text = await res.text();
   let data = null;
@@ -150,7 +132,6 @@ form.addEventListener("submit", async (event) => {
     platforms: "google",
     logoText: String(fd.get("logoText") || "").trim() || undefined,
     barcodeMessage: String(fd.get("barcodeMessage") || "").trim() || undefined,
-    relevantDate: String(fd.get("relevantDate") || "").trim() || undefined,
     recipientPhone: String(fd.get("recipientPhone") || "").trim() || undefined,
     sendSms: fd.get("sendSms") === "1",
     backgroundColor: String(fd.get("backgroundColor") || "#1A3A6B"),
@@ -179,19 +160,10 @@ form.addEventListener("submit", async (event) => {
   }
 
   try {
-    const payloadJson = JSON.stringify(body);
-    const logo = fd.get("logo");
-    /** @type {RequestInit} */
-    const request = { method: "POST" };
-    if (logo instanceof File && logo.size > 0) {
-      const mp = new FormData();
-      mp.append("payload", payloadJson);
-      mp.append("logo", logo);
-      request.body = mp;
-    } else {
-      request.body = payloadJson;
-    }
-    const payload = await api("/api/passes", request);
+    const payload = await api("/api/passes", {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
     renderResult(payload);
     await loadPasses();
   } catch (err) {
@@ -335,8 +307,9 @@ function renderStatus(status) {
   envHelp.textContent = `PUBLIC_BASE_URL=${status.publicBaseUrl}
 DATA_DIR=${status.storage?.dataDir || "/data"}
 
-# Persist passes on Railway (volume at /data — do not set DATA_DIR=./data):
+# Persist passes on Railway (no database):
 # railway volume add --service <service> --mount-path /data
+# Keep DATA_DIR=/data so it matches the volume mount.
 
 # Google Wallet (active)
 GOOGLE_ISSUER_ID=3388xxxxxxxx

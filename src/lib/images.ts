@@ -1,12 +1,5 @@
 import sharp from "sharp";
 
-export const DEFAULT_LOGO_ASSET = "/wallet-assets/logistics-park-gate-logo.png";
-
-/** Square PNG for Google Wallet class/object logos (recommended 660×660). */
-export async function normalizeWalletLogo(buffer: Buffer): Promise<Buffer> {
-  return sharp(buffer).rotate().resize(660, 660, { fit: "cover" }).png().toBuffer();
-}
-
 /** Generate minimal square PNG assets for Apple Wallet packages. */
 export async function generatePassImages(bgHex: string, accentHex: string): Promise<{
   icon: Buffer;

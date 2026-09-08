@@ -80,16 +80,11 @@ function renderPass(data) {
   const fg = input.foregroundColor || "#EEF3FA";
   preview.style.background = `linear-gradient(145deg, ${bg}, color-mix(in srgb, ${bg} 70%, black))`;
   preview.style.color = fg;
-  const logoSrc = input.logoImageUrl || "/wallet-assets/logistics-park-gate-logo.png";
-  const dateLine = input.relevantDate
-    ? input.relevantDate.replace("T", " ").slice(0, 16)
-    : "";
   preview.innerHTML = `
     <div class="org">${escapeHtml(input.organizationName)}</div>
     <div class="title">${escapeHtml(input.logoText || input.eventName || input.description)}</div>
-    <img src="${escapeHtml(logoSrc)}" alt="" width="56" height="56" style="margin-top:0.75rem;width:56px;height:56px;border-radius:50%;object-fit:cover;background:rgba(255,255,255,.12)">
     <p style="margin:0.75rem 0 0;opacity:.85">${escapeHtml(
-      dateLine || input.venue || input.balance || input.discount || pass.serialNumber,
+      input.venue || input.balance || input.discount || pass.serialNumber,
     )}</p>
   `;
 

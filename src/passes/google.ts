@@ -1,12 +1,5 @@
 import { GoogleAuth } from "google-auth-library";
 import { SignJWT, importPKCS8 } from "jose";
-import { DEFAULT_LOGO_ASSET } from "../lib/images.js";
-import {
-  formatPassDateLabel,
-  passEventName,
-  resolveBarcodeMessage,
-  toGoogleDateTime,
-} from "../lib/pass-fields.js";
 import type { AppConfig, CreatePassInput, StoredPass } from "../types.js";
 
 interface ServiceAccount {
@@ -63,24 +56,14 @@ export function googleStatus(config: AppConfig): {
   return { configured: missing.length === 0, missing };
 }
 
-function classId(
-  config: AppConfig,
-  style: CreatePassInput["style"],
-  serialNumber?: string,
-): string {
+function classId(config: AppConfig, style: CreatePassInput["style"]): string {
   if (config.google.classId?.trim()) {
     const explicit = config.google.classId.trim();
     // Allow either full "issuerId.suffix" or just the suffix.
     if (explicit.includes(".")) return explicit;
     return `${config.google.issuerId!}.${explicit}`;
   }
-  const base = `${config.google.issuerId!}.${config.google.classSuffix}_${style}`;
-  // Event name, date and logo live on the class — unique class per ticket so each pass can differ.
-  if (style === "eventTicket" && serialNumber) {
-    const safe = serialNumber.replace(/[^a-zA-Z0-9._-]/g, "_");
-    return `${base}_${safe}`;
-  }
-  return base;
+  return `${config.google.issuerId!}.${config.google.classSuffix}_${style}`;
 }
 
 function objectId(config: AppConfig, serial: string): string {
@@ -121,20 +104,15 @@ function absoluteHttpsUri(raw: string | undefined): string | undefined {
   }
 }
 
-function defaultLogoUri(config: AppConfig): string | undefined {
-  return absoluteHttpsUri(`${config.publicBaseUrl}${DEFAULT_LOGO_ASSET}`);
-}
-
 /**
  * Resolve branding images for a pass object.
- * Priority: per-pass upload → env URLs → images already on the Wallet class →
- * default logistics-park gate logo / hero.
+ * Priority: explicit env URLs → images already configured on the Wallet class →
+ * public WalletPass for Logistics hero asset (Generic only).
  */
 function resolvePassImages(
   config: AppConfig,
   style: CreatePassInput["style"],
   classResource: ClassResource | null,
-  stored?: StoredPass,
 ): {
   heroImage?: WalletImage;
   logo?: WalletImage;
@@ -158,12 +136,7 @@ function resolvePassImages(
     classHero ||
     (style === "generic" || style === "boardingPass" ? defaultHero : undefined);
 
-  const customLogo = absoluteHttpsUri(stored?.input.logoImageUrl);
-  const logoUri =
-    customLogo ||
-    absoluteHttpsUri(config.google.logoImageUrl) ||
-    classLogo ||
-    defaultLogoUri(config);
+  const logoUri = absoluteHttpsUri(config.google.logoImageUrl) || classLogo;
 
   const result: {
     heroImage?: WalletImage;
@@ -192,10 +165,9 @@ function resolvePassImages(
   return result;
 }
 
-function buildClass(config: AppConfig, stored: StoredPass) {
-  const style = stored.input.style;
-  const id = classId(config, style, stored.serialNumber);
-  const images = resolvePassImages(config, style, null, stored);
+function buildGenericClass(config: AppConfig, style: CreatePassInput["style"]) {
+  const id = classId(config, style);
+  const images = resolvePassImages(config, style, null);
   const base: Record<string, unknown> = {
     id,
     issuerName: "WalletPass for Logistics",
@@ -225,25 +197,13 @@ function buildClass(config: AppConfig, stored: StoredPass) {
         redemptionChannel: "BOTH",
         provider: "WalletPass for Logistics",
       };
-    case "eventTicket": {
-      const start = toGoogleDateTime(stored.input.relevantDate);
-      const venueName = stored.input.venue?.trim();
+    case "eventTicket":
       return {
         ...base,
         eventName: {
-          defaultValue: { language: "pl-PL", value: passEventName(stored.input) },
+          defaultValue: { language: "en-US", value: "Event" },
         },
-        ...(venueName
-          ? {
-              venue: {
-                name: { defaultValue: { language: "pl-PL", value: venueName } },
-                address: { defaultValue: { language: "pl-PL", value: venueName } },
-              },
-            }
-          : {}),
-        ...(start ? { dateTime: { start } } : {}),
       };
-    }
     case "storeCard":
     case "generic":
     case "boardingPass":
@@ -281,16 +241,14 @@ function buildObject(
 ) {
   const input = stored.input;
   const id = objectId(config, stored.serialNumber);
-  const cid = classId(config, input.style, stored.serialNumber);
+  const cid = classId(config, input.style);
   const bg = hexToRgb(input.backgroundColor || "#0B3D2E");
-  const barcodeValue = resolveBarcodeMessage(stored);
   const barcode = {
     type: "QR_CODE",
-    value: barcodeValue,
-    alternateText: barcodeValue,
+    value: input.barcodeMessage || stored.serialNumber,
+    alternateText: stored.serialNumber,
   };
-  const images = resolvePassImages(config, input.style, classResource, stored);
-  const dateLabel = formatPassDateLabel(input.relevantDate);
+  const images = resolvePassImages(config, input.style, classResource);
 
   const textModules = [
     {
@@ -307,15 +265,6 @@ function buildObject(
         input.discount ||
         input.organizationName,
     },
-    ...(dateLabel
-      ? [
-          {
-            id: "date",
-            header: "Data",
-            body: dateLabel,
-          },
-        ]
-      : []),
   ];
 
   const common: Record<string, unknown> = {
@@ -327,19 +276,14 @@ function buildObject(
     textModulesData: textModules,
   };
 
-  const start = toGoogleDateTime(input.relevantDate) || stored.createdAt;
-  const end = stored.expiresAt;
-  if (start && end) {
-    common.validTimeInterval = {
-      start: { date: start },
-      end: { date: end },
-    };
-  }
-
   // Generic objects carry logo/hero themselves (class has no heroImage/logo fields).
-  // Event/coupon/loyalty inherit the class logo — do not send object.logo (unsupported).
+  // Typed passes inherit branding from the class — only set object images when env
+  // overrides are present so we don't shadow class graphics.
   const isGenericStyle = input.style === "generic" || input.style === "boardingPass";
   if (isGenericStyle) {
+    if (images.logo) common.logo = images.logo;
+    if (images.heroImage) common.heroImage = images.heroImage;
+  } else if (config.google.heroImageUrl || config.google.logoImageUrl) {
     if (images.logo) common.logo = images.logo;
     if (images.heroImage) common.heroImage = images.heroImage;
   }
@@ -357,7 +301,7 @@ function buildObject(
       return {
         ...common,
         ticketHolderName: input.organizationName,
-        ticketNumber: barcodeValue,
+        ticketNumber: stored.serialNumber,
       };
     case "storeCard":
     case "boardingPass":
@@ -381,7 +325,7 @@ function buildObject(
         subheader: {
           defaultValue: {
             language: "en-US",
-            value: input.balance || dateLabel || input.organizationName,
+            value: input.balance || input.organizationName,
           },
         },
       };
@@ -443,11 +387,11 @@ async function getAuthClient(config: AppConfig) {
 
 async function fetchClass(
   config: AppConfig,
-  stored: StoredPass,
+  style: CreatePassInput["style"],
 ): Promise<ClassResource | null> {
   const client = await getAuthClient(config);
-  const { classPath } = resourcePaths(stored.input.style);
-  const id = classId(config, stored.input.style, stored.serialNumber);
+  const { classPath } = resourcePaths(style);
+  const id = classId(config, style);
   const base = "https://walletobjects.googleapis.com/walletobjects/v1";
 
   try {
@@ -463,60 +407,23 @@ async function fetchClass(
   }
 }
 
-async function patchClassLogoIfMissing(
-  config: AppConfig,
-  stored: StoredPass,
-  classResource: ClassResource,
-): Promise<ClassResource> {
-  const images = resolvePassImages(config, stored.input.style, classResource, stored);
-  if (!images.logo) return classResource;
-  const hasLogo =
-    imageUri(classResource.logo) ||
-    imageUri(classResource.programLogo) ||
-    imageUri(classResource.wideLogo);
-  if (hasLogo) return classResource;
-
-  const style = stored.input.style;
-  const patch: Record<string, unknown> = {};
-  if (style === "storeCard") patch.programLogo = images.logo;
-  else patch.logo = images.logo;
-
-  const client = await getAuthClient(config);
-  const { classPath } = resourcePaths(style);
-  const id = String(classResource.id || classId(config, style, stored.serialNumber));
-  const base = "https://walletobjects.googleapis.com/walletobjects/v1";
-  try {
-    const res = await client.request({
-      url: `${base}/${classPath}/${id}`,
-      method: "PATCH",
-      data: patch,
-    });
-    return (res.data as ClassResource) || { ...classResource, ...patch };
-  } catch (err) {
-    console.warn("Google Wallet class logo patch warning:", (err as Error).message);
-    return classResource;
-  }
-}
-
 /**
  * Ensure the Wallet class exists. Never overwrite an existing class so graphics
- * configured in Google Pay & Wallet Console are preserved — only add a logo
- * when the class has none (or this pass uploaded a custom one onto a unique class).
+ * configured in Google Pay & Wallet Console are preserved.
  */
 async function ensureClass(
   config: AppConfig,
-  stored: StoredPass,
+  style: CreatePassInput["style"],
 ): Promise<{ created: boolean; classResource: ClassResource | null }> {
-  const existing = await fetchClass(config, stored);
+  const existing = await fetchClass(config, style);
   if (existing) {
-    const classResource = await patchClassLogoIfMissing(config, stored, existing);
-    return { created: false, classResource };
+    return { created: false, classResource: existing };
   }
 
   const client = await getAuthClient(config);
-  const { classPath } = resourcePaths(stored.input.style);
+  const { classPath } = resourcePaths(style);
   const base = "https://walletobjects.googleapis.com/walletobjects/v1";
-  const body = buildClass(config, stored);
+  const body = buildGenericClass(config, style);
   const res = await client.request({
     url: `${base}/${classPath}`,
     method: "POST",
@@ -584,7 +491,7 @@ export async function createGoogleSaveUrl(
   // Prefer signed JWT "Save to Wallet" links — works without pre-creating via REST
   // when the class already exists. We still try to ensure class+object via API.
   try {
-    const ensured = await ensureClass(config, stored);
+    const ensured = await ensureClass(config, stored.input.style);
     classCreated = ensured.created;
     classResource = ensured.classResource;
     await upsertObject(config, stored, classResource);
@@ -592,7 +499,7 @@ export async function createGoogleSaveUrl(
     // Fall through to JWT-only claim if REST upsert fails (e.g. permissions pending)
     console.warn("Google Wallet REST upsert warning:", (err as Error).message);
     try {
-      classResource = await fetchClass(config, stored);
+      classResource = await fetchClass(config, stored.input.style);
     } catch {
       classResource = null;
     }
@@ -612,7 +519,7 @@ export async function createGoogleSaveUrl(
     [objectKey]: [objectPayload],
   };
   if (classCreated || !classResource) {
-    payload[classKey] = [classResource || buildClass(config, stored)];
+    payload[classKey] = [classResource || buildGenericClass(config, stored.input.style)];
   }
 
   const claims = {

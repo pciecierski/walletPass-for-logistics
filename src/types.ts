@@ -30,8 +30,6 @@ export interface CreatePassInput {
   barcodeMessage?: string;
   barcodeFormat?: "QR" | "PDF417" | "Aztec" | "Code128";
   relevantDate?: string;
-  /** Public HTTPS URL of a custom logo; set by the server after upload. */
-  logoImageUrl?: string;
   // boarding pass
   transitType?: "PKTransitTypeAir" | "PKTransitTypeTrain" | "PKTransitTypeBus" | "PKTransitTypeBoat" | "PKTransitTypeGeneric";
   // coupon
@@ -78,10 +76,9 @@ export interface AppConfig {
   dataDir: string;
   certsDir: string;
   storage: {
-    /** True when data lives on an attached Railway volume (survives deploys). */
+    /** True when DATA_DIR lives on an attached Railway volume (survives deploys). */
     persistent: boolean;
     volumeMountPath?: string;
-    writable: boolean;
     backend: "filesystem";
   };
   apple: {
